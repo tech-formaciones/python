@@ -83,3 +83,17 @@ print(f"Tienes {edad[0]} años y {edad[1]} días")
 
 # Opción 4, obtenemos la misma información que utilizando la función DIVMOD
 print(f"Tienes {dtr.days // 365} años y {dtr.days % 365} días")
+
+
+# TIME retorna la cantidad de segundos transcurridos desde el comienzo
+# que se fija en el 01-Enero-1970 00:00:00
+t1 = time.time()
+print(f"Segundo desde 01-Ene-1970: {t1} \n")
+
+# Tranformación de segundos en una fecha
+t2 = time.localtime(t1)
+print(f"Tupla: {t2}")
+print(f"Año: {t2.tm_year} \n")
+
+# Conversión de T2 en una representación de fecha y hora local
+print(f"Fecha: {time.asctime(t2)} \n")
