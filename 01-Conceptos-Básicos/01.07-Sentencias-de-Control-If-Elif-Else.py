@@ -1,6 +1,19 @@
 #####################################################################
 # Sentencias de Control - If / Elif / Else                          #
 #####################################################################
+#                                                                   #
+#   Las sentencias de decisión determinar el flujo del programa     #
+#   tras evaluar una expresión de comparación.                      #
+#                                                                   #
+#                                                                   #
+#   Sintaxis:          Es igual: a == b                             #
+#                   No es igual: a != b                             #
+#                     Menor que: a <  b                             #
+#                 Menor o igual: a <= b                             #
+#                     Mayor que: a >  b                             #
+#                 Mayor o igual: a >= b                             #
+#                                                                   #
+#####################################################################
 
 
 # Declaración de variables
@@ -9,6 +22,7 @@ b = 200
 
 # Ejemplo 1, IF/ELIF/ELSE
 print(f"Inicio del programa ==========")
+print("")
 
 if (b > a):
     print(f"B es mayor que A")
@@ -18,6 +32,9 @@ elif (a > b):
     print(f"El valor de A es igual a {a}")  
 else:
     print(f"A es igual que B")
+
+print("")
+print("Continua el programa después del IF")
 
 print(f"Fin del programa =============")
 
