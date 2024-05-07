@@ -1,36 +1,25 @@
-from os import system
+from flask import Flask, render_template, render_template_string
 
-hucha = {"50": 0, "100": 0, "200": 0, "500": 0, "1000": 0}
-total = 0
 
-try:
-    while (True):        
-        accion = input("R para romper hucha, I para insertar monedas: ").upper()
+# Creamos una instancia de Flask
+app = Flask(__name__, template_folder="templates")
 
-        if (accion == "I"):
-            while (True):
-                moneda = input("Valor de la moneda (50, 100, 200, 500 o 1000): ")
-                if (moneda in hucha.keys()):
-                    system("cls")
+# Rutas de la aplicación Flask
 
-                    hucha[moneda] += 1
-                    total = 0
+# Ruta: http://dominio.com/
+@app.route("/")
+def index():
+    return f'<h1 style="color: blue;">Hola Mundo !!!</h1>'
 
-                    for key in hucha:
-                        print(f"{hucha[key]} monedas de {key}")
-                        total += int(key) * hucha[key]
+# Ruta: http://dominio.com/saludo/<nombre>
+@app.route("/saludo/<nombre>")
+def saludo(nombre):
+    return f'<h1 style="color: blue;">Hola {nombre} !!!</h1>'
 
-                    print(f"\nImporte total: {total:1.2f}\n")
+# Ruta: http://dominio.com/template/<nombre>
+@app.route("/template/<nombre>")
+def template(nombre):
+    return render_template("demotemplate.html", nombreenlaplantilla=nombre)
 
-                    break
-                else:
-                    print(f"La moneda {moneda} no es de un valor valido.")
-        elif(accion == "R"):
-            system("cls")
-
-            print(f"\nImporte total: {total:1.2f}\n")
-
-            break
-except Exception as err:
-    print("No se puede mostrar información sobre la hucha.")
-    print(err)
+# Ejecutar la aplicación de Flask en el servidor web integrado
+app.run()
