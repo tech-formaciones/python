@@ -86,10 +86,44 @@ cursor = db.customers.aggregate([
 ])
 
 while (cursor.alive == True):
-    document = cursor.next()
-    print(f"{document["CustomerID"]}# {document["CompanyName"]} - {document["City"]} ({document["Country"]})")
+    doc = cursor.next()
+    print(f"{doc["CustomerID"]}# {doc["CompanyName"]} - {doc["City"]} ({doc["Country"]})")
     
-    for pedido in document["Pedidos"]:
+    for pedido in doc["Pedidos"]:
         print(f" >> {pedido["OrderID"]}# - {pedido["OrderDate"]}")
     
     print("")
+
+
+# Buscamos todos los productos con UnitsInStock distinto de cero
+# Convertir UnitsInStock y UnitPrice en valores númericos
+# Calcular la suma de multiplica el precio por unidades de cada producto
+cursor = clientDB.northwind.products.find({"UnitsInStock": {"$ne": "0"}})
+
+total = 0
+
+while(cursor.alive):
+    p = cursor.next()
+    unidades = int(p["UnitsInStock"])
+    precio = float(p["UnitPrice"])
+    total = total + (unidades * precio)
+
+print(f"Valor de stock: {total:1.2f}")
+
+
+# Utilizamos AGGREGATE para calcular el valor del stock
+query = [
+    {"$match": {"UnitsInStock": {"$ne": "0"}}},
+    {"$addFields": { 
+        "Precio": {"$toDouble": "$UnitPrice"},
+        "Unidades":  {"$toInt": "$UnitsInStock"}
+    }},
+    {"$group": {
+        "_id": "Valor del Stock",
+        "Total": {"$sum": {"$multiply": ["$Precio", "$Unidades"]}},
+        "Productos": {"$sum": 1}
+    }}
+]
+
+cursor = clientDB.northwind.products.aggregate(query)
+pprint(cursor.next())
