@@ -8,41 +8,45 @@ clientDB = MongoClient("mongodb://localhost:27017/")
 db = clientDB.northwind             
 collection = db.customers
 
-# Mostrar el documento por identificador del objeto
-# Filtro: _id = identificador
-result = collection.find_one({"_id": ObjectId("663a105807258656ed9eae3a")})
-pprint(result)
-print("")
+"""
+===================================================
+ Listado de operadores relacionales
+===================================================
+$eq     - equal - igual
+$lt     - low than - menor que
+$lte    - low than equal - menor o igual que
+$gt     - greater than - mayor que
+$gte    - greater than equal - mayor o igual que
+$ne     - not equal - distinto
+$in     - in - dentro de
+$nin    - not in - no dentro de
+$regex  - cumple con la expresión regular
+"""
 
-# Mostrar el primer el documento que coincide con el filtro
-# Filtro: Country = USA
-result = collection.find_one({"Country": "USA"})
-print(type(result))
-pprint(result)
-print("")
-
-# Mostrar el todos los documentos que coincide con el filtro
-# Filtro: Country = USA
-# Retornar un cursor
 cursor = collection.find({"Country": "USA"})
-print(type(cursor))
+cursor = collection.find({"Country": "USA"}).limit(3)
+cursor = collection.find({"Country": "USA"}).skip(5)
+cursor = collection.find({"Country": "USA"}).skip(5).limit(5)
+cursor = collection.find({"Country": "USA"}).sort("City")               # Ordenados de A a W
+cursor = collection.find({"Country": "USA"}).sort({"City": 1})          # Ordenados de A a W
+cursor = collection.find({"Country": "USA"}).sort({"City": -1})         # Ordenados de W a A
 
-# Mostrar el número de documentos de una búsqueda
-# print(f"Resultado de la búsqueda {cursor.count()} documentos.")    # No disponible desde la versión 
-print(f"Resultado de la búsqueda {collection.count_documents({"Country": "USA"})} documentos.")
+# Buscar clientes de USA, ejemplos con y sin operador
+cursor = collection.find({"Country": "USA"})                            # Sin operador
+cursor = collection.find({"Country": {"$eq": "USA"}})                   # Con operador
 
-# Cuando ALIVE retorna TRUE significa que tenemos documentos pendientes de leer en el cursor
-print(f"Documentos pendientes de leer: {cursor.alive}")
-print("")
+# Buscar clientes fuera de USA
+cursor = collection.find({"Country": {"$ne": "USA"}})
 
-# Utilizamos WHILE para mostrar los documentos del cursor
-# El bloque del WHILE se ejecuta mientras ALIVE retorne TRUE (documentos pendientes de leer)
-# Con la función .NEXT() para posicionarnos en el siguiente documentos del cursor
-while(cursor.alive == True):
+# Buscar clientes de USA y Mexico, ordenados por país y ciudad
+cursor = collection.find({"Country": {"$in": ["USA", "Mexico"]}}).sort([("Country", 1), ("City", 1)])
+
+# Buscar clientes que contenienen DE en la clave CustomerID
+cursor = collection.find({"CustomerID": {"$regex": "DE"}})
+
+# Buscar clientes que el CustomerID comienza por A y finaliza con 4 carácteres más
+cursor = collection.find({"CustomerID": {"$regex": "A[A-Z]{4}"}})
+
+while (cursor.alive == True):
     document = cursor.next()
-    pprint(document)
-    print("")
-
-# Cuando ALIVE retorna FALSE significa que no tenemos documentos pedientes de leer en el cursor
-print(f"Documentos pendientes de leer: {cursor.alive}")
-print("")
+    print(f"{document["CustomerID"]}# {document["CompanyName"]} - {document["City"]} ({document["Country"]})")
