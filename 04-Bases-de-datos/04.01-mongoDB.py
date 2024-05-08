@@ -95,8 +95,7 @@ print(type(cursor))
 
 # Mostrar el número de documentos de una búsqueda
 # print(f"Resultado de la búsqueda {cursor.count()} documentos.")    # No disponible desde la versión
-print(f"Resultado de la búsqueda {
-      collection.count_documents({"Country": "USA"})} documentos.")
+print(f"Resultado de la búsqueda {collection.count_documents({"Country": "USA"})} documentos.")
 
 # Cuando ALIVE retorna TRUE significa que tenemos documentos pendientes de leer en el cursor
 print(f"Documentos pendientes de leer: {cursor.alive}")

@@ -45,8 +45,51 @@ cursor = collection.find({"Country": {"$in": ["USA", "Mexico"]}}).sort([("Countr
 cursor = collection.find({"CustomerID": {"$regex": "DE"}})
 
 # Buscar clientes que el CustomerID comienza por A y finaliza con 4 carácteres más
-cursor = collection.find({"CustomerID": {"$regex": "A[A-Z]{4}"}})
+cursor = collection.find({"CustomerID": {"$regex": "1[A-Z]{4}"}})
+
+# Buscar clientes de la ciudad de San Francisco en USA
+# El operador AND NO se especifica, pero se aplica de forma implicita o por defecto
+cursor = collection.find({"Country": "USA", "City": "San Francisco"})
+
+# Buscar clientes de la ciudad de San Francisco en USA utilizando el operador AND
+# El operador AND SI se especifica y se aplica de forma explicita
+cursor = collection.find({"$and": [{"Country": "USA"}, {"City": "San Francisco"}]})
+
+# Buscar clientes de GERMANY o USA utilizar el operador OR
+# El operador OR se especifica y se aplica de forma explicita
+cursor = collection.find({"$or": [{"Country": "Germany"}, {"Country": "USA"}]})
+
+# Buscar los clientes de Mexico y sus pedidos
+cursor = collection.find({"Country": "Mexico"})
 
 while (cursor.alive == True):
     document = cursor.next()
     print(f"{document["CustomerID"]}# {document["CompanyName"]} - {document["City"]} ({document["Country"]})")
+
+    pedidos = clientDB.northwind.orders.find({"CustomerID": document["CustomerID"]})
+    while(pedidos.alive):
+        pedido = pedidos.next()
+        print(f">>> {pedido["OrderID"]}# - {pedido["OrderDate"]}")
+
+    print("")
+
+# Buscar los clientes de Mexico y sus pedidos utilizando agregación AGGREGATE
+cursor = db.customers.aggregate([
+    {"$match": {"Country": "Mexico"}},
+    {"$sort": {"City": 1}},
+    {"$lookup": {
+        "from": "orders",
+        "localField": "CustomerID",
+        "foreignField": "CustomerID",
+        "as": "Pedidos"
+    }}
+])
+
+while (cursor.alive == True):
+    document = cursor.next()
+    print(f"{document["CustomerID"]}# {document["CompanyName"]} - {document["City"]} ({document["Country"]})")
+    
+    for pedido in document["Pedidos"]:
+        print(f" >> {pedido["OrderID"]}# - {pedido["OrderDate"]}")
+    
+    print("")
