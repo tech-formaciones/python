@@ -131,3 +131,221 @@ $in     - in - dentro de
 $nin    - not in - no dentro de
 $regex  - cumple con la expresión regular
 """
+
+cursor = collection.find({"Country": "USA"})
+cursor = collection.find({"Country": "USA"}).limit(3)
+cursor = collection.find({"Country": "USA"}).skip(5)
+cursor = collection.find({"Country": "USA"}).skip(5).limit(5)
+cursor = collection.find({"Country": "USA"}).sort(
+    "City")               # Ordenados de A a W
+cursor = collection.find({"Country": "USA"}).sort(
+    {"City": 1})          # Ordenados de A a W
+cursor = collection.find({"Country": "USA"}).sort(
+    {"City": -1})         # Ordenados de W a A
+
+# Buscar clientes de USA, ejemplos con y sin operador
+# Sin operador
+cursor = collection.find({"Country": "USA"})
+cursor = collection.find({"Country": {"$eq": "USA"}})                   # Con operador
+
+# Buscar clientes fuera de USA
+cursor = collection.find({"Country": {"$ne": "USA"}})
+
+# Buscar clientes de USA y Mexico, ordenados por país y ciudad
+cursor = collection.find({"Country": {"$in": ["USA", "Mexico"]}}).sort([("Country", 1), ("City", 1)])
+
+# Buscar clientes que contenienen DE en la clave CustomerID
+cursor = collection.find({"CustomerID": {"$regex": "DE"}})
+
+# Buscar clientes que el CustomerID comienza por A y finaliza con 4 carácteres más
+cursor = collection.find({"CustomerID": {"$regex": "1[A-Z]{4}"}})
+
+# Buscar clientes de la ciudad de San Francisco en USA
+# El operador AND NO se especifica, pero se aplica de forma implicita o por defecto
+cursor = collection.find({"Country": "USA", "City": "San Francisco"})
+
+# Buscar clientes de la ciudad de San Francisco en USA utilizando el operador AND
+# El operador AND SI se especifica y se aplica de forma explicita
+cursor = collection.find(
+    {"$and": [{"Country": "USA"}, {"City": "San Francisco"}]})
+
+# Buscar clientes de GERMANY o USA utilizar el operador OR
+# El operador OR se especifica y se aplica de forma explicita
+cursor = collection.find({"$or": [{"Country": "Germany"}, {"Country": "USA"}]})
+
+# Buscar los clientes de Mexico y sus pedidos
+cursor = collection.find({"Country": "Mexico"})
+
+while (cursor.alive == True):
+    document = cursor.next()
+    print(f"{document["CustomerID"]}# {document["CompanyName"]
+                                       } - {document["City"]} ({document["Country"]})")
+
+    pedidos = clientDB.northwind.orders.find(
+        {"CustomerID": document["CustomerID"]})
+    while (pedidos.alive):
+        pedido = pedidos.next()
+        print(f">>> {pedido["OrderID"]}# - {pedido["OrderDate"]}")
+
+    print("")
+
+# Buscar los clientes de Mexico y sus pedidos utilizando agregación AGGREGATE
+cursor = db.customers.aggregate([
+    {"$match": {"Country": "Mexico"}},
+    {"$sort": {"City": 1}},
+    {"$lookup": {
+        "from": "orders",
+        "localField": "CustomerID",
+        "foreignField": "CustomerID",
+        "as": "Pedidos"
+    }}
+])
+
+while (cursor.alive == True):
+    doc = cursor.next()
+    print(f"{doc["CustomerID"]}# {doc["CompanyName"]
+                                  } - {doc["City"]} ({doc["Country"]})")
+
+    for pedido in doc["Pedidos"]:
+        print(f" >> {pedido["OrderID"]}# - {pedido["OrderDate"]}")
+
+    print("")
+
+
+# Buscamos todos los productos con UnitsInStock distinto de cero
+# Convertir UnitsInStock y UnitPrice en valores númericos
+# Calcular la suma de multiplica el precio por unidades de cada producto
+cursor = clientDB.northwind.products.find({"UnitsInStock": {"$ne": "0"}})
+
+total = 0
+
+while (cursor.alive):
+    p = cursor.next()
+    unidades = int(p["UnitsInStock"])
+    precio = float(p["UnitPrice"])
+    total = total + (unidades * precio)
+
+print(f"Valor de stock: {total:1.2f}")
+
+
+# Utilizamos AGGREGATE para calcular el valor del stock
+query = [
+    {"$match": {"UnitsInStock": {"$ne": "0"}}},
+    {"$addFields": {
+        "Precio": {"$toDouble": "$UnitPrice"},
+        "Unidades":  {"$toInt": "$UnitsInStock"}
+    }},
+    {"$group": {
+        "_id": "Valor del Stock",
+        "Total": {"$sum": {"$multiply": ["$Precio", "$Unidades"]}},
+        "Productos": {"$sum": 1}
+    }}
+]
+
+cursor = clientDB.northwind.products.aggregate(query)
+pprint(cursor.next())
+
+
+######################################################
+# INSERTAR DOCUMENTOS
+######################################################
+
+# Insertamos un documento partiendo de un objeto de python
+class Customer:
+    CustomerID = None
+    CompanyName = None
+    ContactName = None
+    ContactTitle = None
+    Address = None
+    City = None
+    Region = None
+    PostalCode = None
+    Country = None
+    Phone = None
+    Fax = None
+
+
+cliente = Customer()
+cliente.CustomerID = "DEMO1"
+cliente.CompanyName = "Empresa Uno, SL"
+cliente.ContactName = "Borja"
+cliente.ContactTitle = "Gerente"
+cliente.Address = "Calle Uno, S/N"
+cliente.City = "Madrid"
+cliente.Region = "Madrid"
+cliente.PostalCode = "28016"
+cliente.Country = "España"
+cliente.Phone = "900100100"
+cliente.Fax = "900100200"
+
+# Todos los objetos de python tiene una variable o propiedad que es __dict__
+# que retorna un diccionario de todas sus variables
+pprint(cliente.__dict__)
+
+id = collection.insert_one(cliente.__dict__).inserted_id
+print(f"ID del nuevo documento: {id}")
+
+# Insertamos partiendo de un diccionario
+
+cliente2 = {"CustomerID": "DEMO2",
+            "CompanyName": "Empresa Dos, SL",
+            "ContactName": "Borja Cabeza",
+            "ContactTitle": "Gerente",
+            "Address": "Calle Dos S/N",
+            "City": "Madrid",
+            "Region": "Madrid",
+            "PostalCode": "28019",
+            "Country": "España",
+            "Phone": "910 101 102",
+            "Fax": "910 101 103"}
+
+id = collection.insert_one(cliente2).inserted_id
+print(f"ID del nuevo documento: {id}")
+
+
+######################################################
+# ACTUALIZAR DOCUMENTOS
+######################################################
+
+cliente = collection.find_one({"CustomerID": "DEMO1"})
+pprint(cliente)
+
+# Actualizamos uno o varios documentos de una colección
+query = {"CustomerID": "DEMO1"}
+
+# Los nuevo valores para el documento o documentos que vamos actualizar
+newValues = {"$set": {
+    "ContactName": "Ana Sanz",
+    "PostalCode": "28013"
+}}
+
+# Actualizar el primer documento que retorna la consulta
+result = collection.update_one(query, newValues)
+
+print(f"{result.matched_count} documentos encontrados")
+print(f"{result.modified_count} documentos modificados")
+print(result)
+
+# Actualizar el todos los documentos que retorna la consulta
+result = collection.update_many(query, newValues)
+
+print(f"{result.matched_count} documentos encontrados")
+print(f"{result.modified_count} documentos modificados")
+print(result)
+
+pprint(collection.find_one(query))
+
+
+######################################################
+# ELIMINAR DOCUMENTOS
+######################################################
+
+# Eliminar el primer documento coincidente con el filtro de búsqueda
+result = collection.delete_one({"CustomerID": "DEMO2"})
+print(result)
+print(f"{result.deleted_count} documentos eliminados.")
+
+# Eliminar todos los documentos coincidentes con el filtro de búsqueda
+result = collection.delete_many({"CustomerID": "DEMO2"})
+print(result)
+print(f"{result.deleted_count} documentos eliminados.")
