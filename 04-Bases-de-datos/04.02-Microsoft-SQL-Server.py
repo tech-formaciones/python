@@ -2,7 +2,7 @@ import pymssql
 
 # Establecer la conexión con la base de datos
 connection = pymssql.connect(
-    server="sqlserver-eoi.database.windows.net",
+    server="hostdb-eoi.database.windows.net",
     port="1433",
     user="Administrador",
     password="azurePa$$w0rd",
