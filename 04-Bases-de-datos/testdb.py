@@ -31,3 +31,18 @@ for row in cursor.fetchall():
     cursor2.execute(f"SELECT COUNT(*) AS NumPedidos FROM dbo.Orders WHERE CustomerID = '{row["CustomerID"]}'")
     print(f"{row["CustomerID"]}# {row["CompanyName"]} -> {cursor2.fetchone()["NumPedidos"]} pedidos")
 """
+
+# Listado de clientes de USA y el número de pedidos de cada cliente
+
+query = """
+    SELECT c.CustomerID, c.CompanyName, COUNT(o.OrderID) AS NumPedidos
+    FROM dbo.Customers c
+    JOIN dbo.Orders o
+    ON c.CustomerID = o.CustomerID
+    WHERE c.Country = 'USA'
+    GROUP BY c.CustomerID, c.CompanyName
+"""
+cursor.execute(query)
+for row in cursor.fetchall():
+    print(f"{row["CustomerID"]}# {row["CompanyName"]} -> {row["NumPedidos"]} pedidos")
+
