@@ -280,3 +280,79 @@ command = """
 command = """
     INSERT INTO dbo.Customers VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
 """
+
+
+######################################################
+# UPDATE, actulizar registros
+######################################################
+
+command = """
+    UPDATE dbo.Customers
+    SET Address = 'Calle Uno, S/N', ContactName = 'Carlos Sánchez'
+    WHERE CustomerID = 'BCR11'
+"""
+
+# cursor.execute(command)
+connection.commit()
+
+print(f"{cursor.rowcount} registros actualizados.")
+
+
+command = """
+    UPDATE dbo.Customers
+    SET Address = %s, ContactName = %s
+    WHERE CustomerID = 'BCR12'
+"""
+
+cursor.execute(command, ("Calle Principal, 10", "María José Sanz"))
+connection.commit()
+
+print(f"{cursor.rowcount} registros actualizados.")
+
+
+command = """
+    UPDATE dbo.Customers
+    SET Address = %s, ContactName = %s
+    WHERE CustomerID = %s
+"""
+
+cursor.execute(command, ("Calle Principal, 10", "María Sanz", "BCR12"))
+connection.commit()
+
+print(f"{cursor.rowcount} registros actualizados.")
+
+
+######################################################
+# DELETE, eliminar registros
+######################################################
+
+command = """
+    DELETE FROM dbo.Customers
+    WHERE CustomerID = 'BCR10'
+"""
+
+try:
+    cursor.execute(command)
+    connection.commit()
+except Exception as e:
+    connection.rollback()
+    print(f"Error: {e}")
+finally:
+    print(f"{cursor.rowcount} registros eliminados.")
+    connection.close()
+
+
+command = """
+    DELETE FROM dbo.Customers
+    WHERE CustomerID = %s
+"""
+
+try:
+    cursor.execute(command, ("BCR11"))
+    connection.commit()
+except Exception as e:
+    connection.rollback()
+    print(f"Error: {e}")
+finally:
+    print(f"{cursor.rowcount} registros eliminados.")
+    connection.close()
