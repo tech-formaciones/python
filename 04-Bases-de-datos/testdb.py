@@ -12,37 +12,61 @@ connection = pymssql.connect(
 cursor = connection.cursor(as_dict=True)
 
 ######################################################
-# SELECT, las agrupaciones
+# INSERT, insertar nuevo registros
 ######################################################
 
-# Listado de clientes de USA y el número de pedidos de cada cliente
-# NO ES UNA AGRUPACIÓN, es una subconsulta dentro del for que debemos evitar por rendimiento
-cursor.execute("SELECT * FROM dbo.Customers WHERE Country = 'USA'")
-for row in cursor.fetchall():
-    cursor2 = connection.cursor()
-    cursor2.execute(f"SELECT COUNT(*) FROM dbo.Orders WHERE CustomerID = '{row["CustomerID"]}'")
-    print(f"{row["CustomerID"]}# {row["CompanyName"]} -> {cursor2.fetchone()[0]} pedidos")
+# Definición de un objeto que representa el registro CUSTOMER 
+class Customer:
+    CustomerID = None
+    CompanyName = None
+    ContactName = None
+    ContactTitle = None
+    Address = None
+    City = None
+    Region = None
+    PostalCode = None
+    Country = None
+    Phone = None
+    Fax = None
 
+# Instaciamos el objeto CUSTOMER
+cliente = Customer()
+cliente.CustomerID = "DEMO1"
+cliente.CompanyName = "Empresa Uno, SL"
+cliente.ContactName = "Borja"
+cliente.ContactTitle = "Gerente"
+cliente.Address = "Calle Uno, S/N"
+cliente.City = "Madrid"
+cliente.Region = "Madrid"
+cliente.PostalCode = "28016"
+cliente.Country = "España"
+cliente.Phone = "900100100"
+cliente.Fax = "900100200"
+
+# cliente2 es un diccionario que también representa el registro CUSTOMER
+cliente2 = {"CustomerID": "DEMO2",
+            "CompanyName": "Empresa Dos, SL",
+            "ContactName": "Borja Cabeza",
+            "ContactTitle": "Gerente",
+            "Address": "Calle Dos S/N",
+            "City": "Madrid",
+            "Region": "Madrid",
+            "PostalCode": "28019",
+            "Country": "España",
+            "Phone": "910 101 102",
+            "Fax": "910 101 103"}
+
+# INSERT comando de inserción
+command = """
+    INSERT INTO dbo.Customers(CustomerID, CompanyName, ContactTitle, City, Country)
+    VALUES('BCR03', 'Company SL', 'Borja Cabeza')
 """
-    Opcionalmente podemos trabajar con cursores que retornan diccionarios, pero estamos 
-    obligados a definir alias para el dato calculado usando AS
 
-    cursor2 = connection.cursor(as_dict=True)
-    cursor2.execute(f"SELECT COUNT(*) AS NumPedidos FROM dbo.Orders WHERE CustomerID = '{row["CustomerID"]}'")
-    print(f"{row["CustomerID"]}# {row["CompanyName"]} -> {cursor2.fetchone()["NumPedidos"]} pedidos")
-"""
+cursor.execute(command)
 
-# Listado de clientes de USA y el número de pedidos de cada cliente
+#connection.commit()
 
-query = """
-    SELECT c.CustomerID, c.CompanyName, COUNT(o.OrderID) AS NumPedidos
-    FROM dbo.Customers c
-    JOIN dbo.Orders o
-    ON c.CustomerID = o.CustomerID
-    WHERE c.Country = 'USA'
-    GROUP BY c.CustomerID, c.CompanyName
-"""
-cursor.execute(query)
-for row in cursor.fetchall():
-    print(f"{row["CustomerID"]}# {row["CompanyName"]} -> {row["NumPedidos"]} pedidos")
+#connection.rollback()
 
+
+connection.close()
