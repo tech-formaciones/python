@@ -153,3 +153,130 @@ query = """
 cursor.execute(query)
 for row in cursor.fetchall():
     print(f"{row["CustomerID"]}# {row["CompanyName"]} -> {row["NumPedidos"]} pedidos")
+
+
+######################################################
+# INSERT, insertar nuevo registros
+######################################################
+
+# Definición de un objeto que representa el registro CUSTOMER 
+class Customer:
+    CustomerID = None
+    CompanyName = None
+    ContactName = None
+    ContactTitle = None
+    Address = None
+    City = None
+    Region = None
+    PostalCode = None
+    Country = None
+    Phone = None
+    Fax = None
+
+# Instaciamos el objeto CUSTOMER
+cliente = Customer()
+cliente.CustomerID = "DEMO1"
+cliente.CompanyName = "Empresa Uno, SL"
+cliente.ContactName = "Borja"
+cliente.ContactTitle = "Gerente"
+cliente.Address = "Calle Uno, S/N"
+cliente.City = "Madrid"
+cliente.Region = "Madrid"
+cliente.PostalCode = "28016"
+cliente.Country = "España"
+cliente.Phone = "900100100"
+cliente.Fax = "900100200"
+
+# cliente2 es un diccionario que también representa el registro CUSTOMER
+cliente2 = {"CustomerID": "DEMO2",
+            "CompanyName": "Empresa Dos, SL",
+            "ContactName": "Borja Cabeza",
+            "ContactTitle": "Gerente",
+            "Address": "Calle Dos S/N",
+            "City": "Madrid",
+            "Region": "Madrid",
+            "PostalCode": "28019",
+            "Country": "España",
+            "Phone": "910 101 102",
+            "Fax": "910 101 103"}
+
+# INSERT comando de inserción
+command = """
+    INSERT INTO dbo.Customers(CustomerID, CompanyName, ContactTitle, City, Country)
+    VALUES('BCR01', 'Company SL', 'Borja Cabeza', 'Madrid', 'España')
+"""
+
+# Insertamos nuevos registros ejecutado el comando INSERT
+#cursor.execute(command)
+
+# Utilizamos la función commit() de la conexión para CONFIRMAR la transación
+# tanto para operaciones de inserción, actualización y borrado
+connection.commit()
+
+# Utilizamos la función rollback() de la conexión para ANULAR la transación
+# tanto para operaciones de inserción, actualización y borrado
+connection.rollback()
+
+# Ejemplo de un comando INSERT que indica las columnas o campos y sus valores
+command = """
+    INSERT INTO dbo.Customers(
+        CustomerID, 
+        CompanyName, 
+        ContactTitle, 
+        City, 
+        Country) VALUES('BCR01', 'Company SL', 'Borja Cabeza', 'Madrid', 'España')
+"""
+# Ejemplo de un comando INSERT que indica las columnas o campos y comodines para los valores
+command2 = """
+    INSERT INTO dbo.Customers(
+        CustomerID, 
+        CompanyName, 
+        ContactName,
+        ContactTitle, 
+        City, 
+        Country) VALUES(%s, %s, %s, %s, %s, %s)
+"""
+
+# Al ejecutar el comando con comides, pasamos como segundo parámetros los valores en una lista
+cursor.execute(command2, ["BCR02", "Company Demo, SL", "Borja", "CEO", "Valencia", "España"])
+
+# El mismo ejemplo donde pasamos los valores en una tupla
+cursor.execute(command2, ("BCR03", "Company Demo, SL", "Borja", "CEO", "Valencia", "España"))
+connection.commit()
+
+# Para insertar varios registros al mismo tiempo creamos una lista que contiene en cada posición
+# una tupla con los valores de cada registro que vamos a insertar
+data = []
+data.append(("BCR10", "Company Demo 10, SL", "Borja", "CEO", "Sevilla", "España"))
+data.append(("BCR11", "Company Demo 11, SL", "Carlos", "CEO", "Bilbao", "España"))
+data.append(("BCR12", "Company Demo 12, SL", "Julian", "CEO", "Málaga", "España"))    
+
+# Utilizamos las función .executemany() para insertar varios registro y pasamos como segundo
+# parámetro la lista de tuplas con los valores de los diferentes registros
+cursor.executemany(command2, data)
+connection.commit()
+
+# La propieda o variable .rowcount nos devuelve el número de registros insertados, actualizados o borrados
+print(f"{cursor.rowcount} registros insertados.")
+
+# Ejemplo de un INSERT donde se especifican valores para todos los campos o columnas del registro
+command = """
+    INSERT INTO dbo.Customers VALUES(
+        'DEMO2',
+        'Empresa Dos, SL',
+        'Borja Cabeza',
+        'Gerente',
+        'Calle Dos S/N',
+        'Madrid',
+        'Madrid',
+        '28019',
+        'España',
+        '910 101 102',
+        '910 101 103')
+"""
+
+# Ejemplo de un INSERT donde se especifican comodines para los valores para todos los 
+# campos o columnas del registro
+command = """
+    INSERT INTO dbo.Customers VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+"""
