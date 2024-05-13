@@ -41,10 +41,50 @@ if(numTablas == 0):
     """
     cursor.execute(command)
 
+    # Insertamos registros mediante INSERT
+    command = "INSERT INTO Alumnos (id, nombre) VALUES ('000', 'Borja')"
+    cursor.execute(command)
+    connection.commit()
+    print(f"{cursor.rowcount} registros insertados")
+
+    command = "INSERT INTO Alumnos VALUES ('001', 'Julian', 'Sánchez', '2A', Null)"
+    cursor.execute(command)
+    connection.commit()
+    print(f"{cursor.rowcount} registros insertados")
+
+    data = [
+        ('002', 'Ana', 'Trujillo', '2C', None),
+        ('003', 'Antonio', 'Sánchez', '2A', json.dumps([7.5, 6, 9, 5, 6.9])),
+        ('004', 'María', 'Sanz', '2B', None)
+    ]
+
+    command = " INSERT INTO Alumnos VALUES (?, ?, ?, ?, ?)"
+    cursor.executemany(command, data)
+    connection.commit()
+    print(f"{cursor.rowcount} registros insertados")
 
 
-# Insertamos registros mediante INSERT
-command = " INSERT INTO Alumnos (id, nombre) VALUES ('000', 'Borja')"
+# Eliminar registros mediante DELETE
+command = "DELETE FROM Alumnos WHERE id = '004'"
 cursor.execute(command)
 connection.commit()
-print(f"{cursor.rowcount} registros insertados")
+print(f"{cursor.rowcount} registros eliminados")
+
+
+# Actualizamos registros mediante UPDATE
+command = "UPDATE Alumnos SET apellidos = 'Cabeza', curso = '2C' WHERE id = '000'"
+cursor.execute(command)
+connection.commit()
+print(f"{cursor.rowcount} registros actualizados")
+
+
+# Consultamos registros mediante SELECT
+command = "SELECT * FROM Alumnos WHERE curso = '2A' ORDER BY apellidos, nombre"
+command = "SELECT * FROM Alumnos"
+
+cursor.execute(command)
+
+for row in cursor.fetchall():    
+    print(f"{row[0]}# {row[1]} {row[2]}")
+    print(row)
+    print("")
