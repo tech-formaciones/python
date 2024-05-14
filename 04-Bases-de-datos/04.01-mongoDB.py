@@ -136,16 +136,12 @@ cursor = collection.find({"Country": "USA"})
 cursor = collection.find({"Country": "USA"}).limit(3)
 cursor = collection.find({"Country": "USA"}).skip(5)
 cursor = collection.find({"Country": "USA"}).skip(5).limit(5)
-cursor = collection.find({"Country": "USA"}).sort(
-    "City")               # Ordenados de A a W
-cursor = collection.find({"Country": "USA"}).sort(
-    {"City": 1})          # Ordenados de A a W
-cursor = collection.find({"Country": "USA"}).sort(
-    {"City": -1})         # Ordenados de W a A
+cursor = collection.find({"Country": "USA"}).sort("City")               # Ordenados de A a W
+cursor = collection.find({"Country": "USA"}).sort({"City": 1})          # Ordenados de A a W
+cursor = collection.find({"Country": "USA"}).sort({"City": -1})         # Ordenados de W a A
 
 # Buscar clientes de USA, ejemplos con y sin operador
-# Sin operador
-cursor = collection.find({"Country": "USA"})
+cursor = collection.find({"Country": "USA"})                            # Sin operador
 cursor = collection.find({"Country": {"$eq": "USA"}})                   # Con operador
 
 # Buscar clientes fuera de USA
@@ -166,8 +162,7 @@ cursor = collection.find({"Country": "USA", "City": "San Francisco"})
 
 # Buscar clientes de la ciudad de San Francisco en USA utilizando el operador AND
 # El operador AND SI se especifica y se aplica de forma explicita
-cursor = collection.find(
-    {"$and": [{"Country": "USA"}, {"City": "San Francisco"}]})
+cursor = collection.find({"$and": [{"Country": "USA"}, {"City": "San Francisco"}]})
 
 # Buscar clientes de GERMANY o USA utilizar el operador OR
 # El operador OR se especifica y se aplica de forma explicita
@@ -178,11 +173,9 @@ cursor = collection.find({"Country": "Mexico"})
 
 while (cursor.alive == True):
     document = cursor.next()
-    print(f"{document["CustomerID"]}# {document["CompanyName"]
-                                       } - {document["City"]} ({document["Country"]})")
+    print(f"{document["CustomerID"]}# {document["CompanyName"]} - {document["City"]} ({document["Country"]})")
 
-    pedidos = clientDB.northwind.orders.find(
-        {"CustomerID": document["CustomerID"]})
+    pedidos = clientDB.northwind.orders.find({"CustomerID": document["CustomerID"]})
     while (pedidos.alive):
         pedido = pedidos.next()
         print(f">>> {pedido["OrderID"]}# - {pedido["OrderDate"]}")
@@ -203,8 +196,7 @@ cursor = db.customers.aggregate([
 
 while (cursor.alive == True):
     doc = cursor.next()
-    print(f"{doc["CustomerID"]}# {doc["CompanyName"]
-                                  } - {doc["City"]} ({doc["Country"]})")
+    print(f"{doc["CustomerID"]}# {doc["CompanyName"]} - {doc["City"]} ({doc["Country"]})")
 
     for pedido in doc["Pedidos"]:
         print(f" >> {pedido["OrderID"]}# - {pedido["OrderDate"]}")

@@ -286,39 +286,54 @@ command = """
 # UPDATE, actulizar registros
 ######################################################
 
+# Utilizamos UPDATE para actualizar registros en la base de datos
 command = """
     UPDATE dbo.Customers
     SET Address = 'Calle Uno, S/N', ContactName = 'Carlos Sánchez'
     WHERE CustomerID = 'BCR11'
 """
 
-# cursor.execute(command)
+# Ejecutamos el comando de actulización
+cursor.execute(command)
+
+# Confirmamos la transación y por tanto la operación de actulización
 connection.commit()
 
+# Mostramos los registros actualizados
 print(f"{cursor.rowcount} registros actualizados.")
 
-
+# Utilizamos UPDATE para actualizar registros en la base de datos
+# El comando contiene comodine o parámetros para sustituir por valores en el momento de la ejecución
 command = """
     UPDATE dbo.Customers
     SET Address = %s, ContactName = %s
     WHERE CustomerID = 'BCR12'
 """
 
+# Ejecutamos el comando de actulización y pasamos los valores para los comodines o parámetros
 cursor.execute(command, ("Calle Principal, 10", "María José Sanz"))
+
+# Confirmamos la transación y por tanto la operación de actulización
 connection.commit()
 
+# Mostramos los registros actualizados
 print(f"{cursor.rowcount} registros actualizados.")
 
-
+# Utilizamos UPDATE para actualizar registros en la base de datos
+# El comando contiene comodine o parámetros para sustituir por valores en el momento de la ejecución
 command = """
     UPDATE dbo.Customers
     SET Address = %s, ContactName = %s
     WHERE CustomerID = %s
 """
 
+# Ejecutamos el comando de actulización y pasamos los valores para los comodines o parámetros
 cursor.execute(command, ("Calle Principal, 10", "María Sanz", "BCR12"))
+
+# Confirmamos la transación y por tanto la operación de actulización
 connection.commit()
 
+# Mostramos los registros actualizados
 print(f"{cursor.rowcount} registros actualizados.")
 
 
@@ -326,11 +341,15 @@ print(f"{cursor.rowcount} registros actualizados.")
 # DELETE, eliminar registros
 ######################################################
 
+# Utilizamos DELETE para eliminar registros en la base de datos
 command = """
     DELETE FROM dbo.Customers
     WHERE CustomerID = 'BCR10'
 """
 
+# Ejecutamos el comando y confirmamos la transación mediante connection.commit()
+# Si se produce un error retrocedemos la transación mediante connection.rollback() y la operación de borrado se anual
+# Siempre mostramos el número de registros eliminados
 try:
     cursor.execute(command)
     connection.commit()
@@ -341,12 +360,13 @@ finally:
     print(f"{cursor.rowcount} registros eliminados.")
     connection.close()
 
-
+# Utilizamos DELETE para eliminar registros en la base de datos, el comando contiene parámetros
 command = """
     DELETE FROM dbo.Customers
     WHERE CustomerID = %s
 """
 
+# Ejecutamos el comando y suminstramos valores para los parámetros
 try:
     cursor.execute(command, ("BCR11"))
     connection.commit()
