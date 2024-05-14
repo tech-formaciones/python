@@ -4,6 +4,25 @@
 
 import requests, json
 
+def InfoBus(item):
+    data = {}
+    data["linea"] = item["line"]
+    data["distancia"] = item["DistanceBus"]
+
+    if (item["estimateArrive"] < 60):
+        data["tiempo"] = "está en la parada."
+    else:
+        time = item["estimateArrive"] / 60
+        if(time >= 20):
+            data["tiempo"] = "llegará en 20 min o más."
+        else:
+            data["tiempo"] = f"llegará aproximadamente en {time:1.0f} min."
+
+    data["mensaje"] = f"el {data["linea"]} {data["tiempo"]} ({data["distancia"]} m.)"
+    
+    return data
+
+
 urls = {
     "base": "https://openapi.emtmadrid.es/v2/",
     "login": "mobilitylabs/user/login/",
@@ -45,7 +64,14 @@ try:
     # response2 = requests.post(endpoint2, headers=headers2, data=json.dumps(data2))
 
     if (response2.status_code == 200):
-        print(response2.text)
+        # Opción A
+        datos = list(map(InfoBus, response2.json()["data"][0]["Arrive"]))
+        for item in datos: 
+            print(item["mensaje"])
+
+        # Opción B
+        # for item in response2.json()["data"][0]["Arrive"]:
+        #     print(InfoBus(item)["mensaje"])
     else:
         print(f"Error ({response2.status_code}): {response2.reason}")
 
