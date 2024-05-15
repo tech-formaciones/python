@@ -22,7 +22,11 @@
                     <hr />
                 </div>
                 <br />
-
+                <ul>
+                {% for item in info %}
+                    <li><h4>{{ item.mensaje }}</h4></li>
+                {% endfor%}
+                </ul>
             </div>
             <div class="col-1"> </div>
         </div>

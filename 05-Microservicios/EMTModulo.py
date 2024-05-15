@@ -52,7 +52,6 @@ def InfoBus(item):
         else:
             data["tiempo"] = f"llegará aproximadamente en {time:1.0f} min."
 
-    data["mensaje"] = f"el {data["linea"]} {
-        data["tiempo"]} ({data["distancia"]} m.)"
+    data["mensaje"] = f"el {data["linea"]} {data["tiempo"]} ({data["distancia"]} m.)"
 
     return data
