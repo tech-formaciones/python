@@ -1,5 +1,5 @@
 #####################################################################
-# Consultar bicis disponibles para alquilar                         #
+# Consultar plazas libre en los parkings                            #
 #####################################################################
 
 import requests
@@ -9,7 +9,7 @@ import json
 urls = {
     "base": "https://openapi.emtmadrid.es/v2/",
     "login": "mobilitylabs/user/login/",
-    "listBicimad": "transport/bicimad/stations/"
+    "listParkings": "citymad/places/parkings/availability/"
 }
 
 # Variable para alamacenar el token
@@ -32,7 +32,7 @@ try:
     # Realizamos una llamda GET al microservicio y almacenamos la respuesta en la variable response
     response = requests.get(endpoint, headers=headers)
 
-    # Comprobamos que código de estado es 200 y recogemos del mensaje de respuesta el token, 
+    # Comprobamos que código de estado es 200 y recogemos del mensaje de respuesta el token,
     # que almacenamos en la variable token
     if (response.status_code == 200):
         token = response.json()["data"][0]["accessToken"]
@@ -41,12 +41,12 @@ try:
         quit()
 
     #####################################################
-    # Obtener listado de los BiciMAD
+    # Obtener listado de los Parkings
     #####################################################
 
     # La variable endpoint contiene el resultado de concatenar los valores de dos claves del diccionario
-    # https://openapi.emtmadrid.es/v2/transport/bicimad/stations/
-    endpoint = urls["base"] + urls["listBicimad"]
+    # https://openapi.emtmadrid.es/v2/citymad/places/parkings/availability/
+    endpoint = urls["base"] + urls["listParkings"]
 
     # La variable headers es un diccionario que representan las cabeceras del mensaje de petición
     # Enviamos el token obtenido en la anterior petición
@@ -58,17 +58,20 @@ try:
     # Comprobamos que código de estado es 200 y recogemos del mensaje de respuesta
     # Procesamos la respuesta mostrando el listado de BiciMAD Station y las bicis libres
     if (response.status_code == 200):
-        datos = map(lambda x: (x["address"], x["dock_bikes"]), response.json()["data"])
+        datos = map(lambda x: (x["name"], x["freeParking"]), response.json()["data"])
 
-        print("============================================================")
-        print(" LISTADO DE BiciMAD")
-        print("============================================================")
+        print("======================================================================")
+        print(" LISTADO DE Parkings")
+        print("======================================================================")
         for item in datos:
-            print(f" |-> {item[1]:>4} bicis libres en {item[0]}")
+            if (item[1] == None):
+                print(f" |-> {item[0]:<35} -       sin información")
+            else:                
+                print(f" |-> {item[0]:<35} - {item[1]:>5} plazas libres")
 
-        print("============================================================")
-        print(f"     {sum(map(lambda x: x["dock_bikes"], response.json()["data"])):>4} bicis libres")
-        print("============================================================")
+        print("======================================================================")
+        print(f"{"     TOTAL DE PLAZAS LIBRES":<40}   {sum(map(lambda x: x["freeParking"], filter(lambda x: x["freeParking"] != None, response.json()["data"]))):>5} ")
+        print("======================================================================")
     else:
         print(f"Error ({response.status_code}): {response.reason}")
 
