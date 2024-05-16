@@ -16,6 +16,8 @@ app = Flask(__name__, template_folder="templates")
 @app.route("/api/products", methods=["GET"])
 def products_get():
     try:
+        categoria = request.args.get("categoria", None)
+
         connection = pymssql.connect(
             server="hostdb2-eoi.database.windows.net",
             port="1433",
@@ -24,7 +26,10 @@ def products_get():
             database="Northwind")
 
         cursor = connection.cursor(as_dict=True)
-        cursor.execute("SELECT * FROM dbo.Products")
+        if (categoria != None):
+            cursor.execute(f"SELECT * FROM dbo.Products WHERE CategoryID = {categoria}")
+        else:
+            cursor.execute("SELECT * FROM dbo.Products")
 
         return jsonify(cursor.fetchall()), 200
     except Exception as err:
@@ -160,6 +165,17 @@ def products_delete(id):
     except Exception as err:
         return jsonify(err), 500
 
+
+#########################################################################
+# Funciones que se ejecutan en todas las peticiones
+#########################################################################
+
+@app.before_request
+def verificar_apikey():
+    apikey = request.headers.get("Authorization", None)
+    if (apikey != "8aaWPy5SzLubp9ApRQbZkWkHA6PFZ33n"):
+        return jsonify({"Message" : "Acceso no autorizado"}), 401
+    
 
 #########################################################################
 # Ejecutar la aplicación de Flask en el servidor web integrado
