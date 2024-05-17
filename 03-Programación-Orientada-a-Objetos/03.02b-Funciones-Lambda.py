@@ -1,9 +1,27 @@
 #####################################################################
 # Declaración de Funciones Lamda                                    #
 #####################################################################
+#                                                                   #
+#   Sintaxis: lambda arguments : expression                         #
+#                                                                   #
+#   Ejemplos:                                                       #
+#       x = lambda a : a + 10                                       #
+#       print(x(5))                                                 #
+#                                                                   #
+#####################################################################
 
 from functools import reduce
 
+#####################################################################
+# Función FILTER                                                    #
+#####################################################################
+#                                                                   #
+#  La función filter() busca elementos en un colección.             #
+#                                                                   #
+#  Utiliza una función que devuelve True cuando el elemento cumple  #
+#  con los criterios de filtrado.                                   #
+#                                                                   #
+#####################################################################
 
 numeros = [1, 85, 200, 15, 152, 450, 5, 3061, 63, 77, 8]
 
@@ -27,7 +45,7 @@ def NumMayorCien(numero):
         return True
     else:
         return False
-    
+
 print(f"Número mayores de 100 - FILTER + Función Estándar: {list(filter(NumMayorCien, numeros))}")
 
 # Extraer número mayores de 100 utilizando FILTER y LAMBDA
@@ -36,6 +54,17 @@ print(f"Número mayores de 100 - FILTER + Función Lambda: {list(filter(lambda x
 
 print(f"Número menores de 50: {list(filter(lambda x: x < 50, numeros))}")
 print(f"Número pares: {list(filter(lambda x: x % 2 == 0, numeros))}")
+
+#####################################################################
+# Función MAP                                                       #
+#####################################################################
+#                                                                   #
+#  La función map() transformar una colección.                      #
+#                                                                   #
+#  Partiendo de una coleccióin, utiliza una función que devuelve    #
+#  otra colección. La colección original no cambia                  #
+#                                                                   #
+#####################################################################
 
 print(f"Datos: {numeros}")
 resultado = list(map(lambda x: (x + 10) / 2, numeros))

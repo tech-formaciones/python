@@ -41,6 +41,7 @@ while (row):
     row = cursor.fetchone()
 """
 
+# Mostar el contenido del cursor utilizando un FOR
 cursor.execute("SELECT * FROM dbo.Customers")
 for row in cursor.fetchall():
     print(f">      ID: {row["CustomerID"]}")

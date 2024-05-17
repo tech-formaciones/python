@@ -19,8 +19,8 @@ def index():
 # Ruta: http://dominio.com/listado
 @app.route("/listado", methods=["POST"])
 def listado():
-    # parada = request.args.get("parada")             # Procesar formularios GET
-    parada = request.form.get("parada")             # Procesar formularios POST    
+    # parada = request.args.get("parada")               # Procesar formularios GET
+    parada = request.form.get("parada")                 # Procesar formularios POST    
     infoData = GetArrivalBus(parada)
 
     return render_template("listado.html", info=infoData)

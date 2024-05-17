@@ -1,6 +1,14 @@
 #####################################################################
 # Declaración de Funciones Lamda                                    #
 #####################################################################
+#                                                                   #
+#   Sintaxis: lambda arguments : expression                         #
+#                                                                   #
+#   Ejemplos:                                                       #
+#       x = lambda a : a + 10                                       #
+#       print(x(5))                                                 #
+#                                                                   #
+#####################################################################
 
 def Saludo(nombre):
     print(f"Hola, me llamo {nombre}.")
