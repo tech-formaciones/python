@@ -34,7 +34,17 @@ def products_get():
         else:
             cursor.execute("SELECT * FROM dbo.Products")
 
-        return jsonify(cursor.fetchall()), 200
+        if (session["response_type"] == "xml"):
+            xml = "<products>"
+            for item in cursor.fetchall():
+                xml = xml + dict_to_xml(item, "product")
+
+            xml = xml + "</products>"
+            response = Response(xml, status=200, content_type="application/xml")
+
+            return response
+        else:
+            return jsonify(cursor.fetchall()), 200
     except Exception as err:
         return jsonify(err), 500
 
@@ -212,7 +222,6 @@ def verificar_apikey():
     apikey = request.headers.get("Authorization", None)
     if (apikey != "8aaWPy5SzLubp9ApRQbZkWkHA6PFZ33n"):
         return jsonify({"Message" : "Acceso no autorizado"}), 401
-
 
 @app.before_request
 def get_type_response():
