@@ -1,10 +1,12 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, Response, jsonify, session
+from XMLModulo import *
 import pymssql
 
 #########################################################################
 # Creamos una instancia de Flask
 #########################################################################
 app = Flask(__name__, template_folder="templates")
+app.secret_key = b"5s2%_5d3'$$ds92xDS5s"
 
 
 #########################################################################
@@ -53,7 +55,13 @@ def product_get(id):
             cursor = connection.cursor(as_dict=True)
             cursor.execute(f"SELECT * FROM dbo.Products WHERE ProductID = {id}")
 
-            return jsonify(cursor.fetchone()), 200
+            if (session["response_type"] == "xml"):
+                xml = dict_to_xml(cursor.fetchone(), "product")
+                response = Response(xml, status=200, content_type="application/xml")
+
+                return response
+            else:
+                return jsonify(cursor.fetchone()), 200
         else:
             return jsonify({"Message": "La referencia del producto no es valida."}), 400
     except Exception as err:
@@ -204,7 +212,12 @@ def verificar_apikey():
     apikey = request.headers.get("Authorization", None)
     if (apikey != "8aaWPy5SzLubp9ApRQbZkWkHA6PFZ33n"):
         return jsonify({"Message" : "Acceso no autorizado"}), 401
-    
+
+
+@app.before_request
+def get_type_response():
+    session["response_type"] = request.args.get("rt", "json").lower()
+
 
 #########################################################################
 # Ejecutar la aplicación de Flask en el servidor web integrado
